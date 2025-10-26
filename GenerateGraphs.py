@@ -35,24 +35,22 @@ def make_graphs(category, count, min_nodes, max_nodes, density_factor):
         })
     return graphs
 
-# Генерация всех категорий
 graphs = []
 graphs += make_graphs("small", 5, 5, 30, 2.5)
 graphs += make_graphs("medium", 10, 50, 300, 2.0)
 graphs += make_graphs("large", 10, 400, 1000, 1.5)
 graphs += make_graphs("extra", 5, 1200, 3000, 1.2)
 
-# Пронумеровываем id
+#id
 for idx, g in enumerate(graphs, start=1):
     g["id"] = idx
 
 data = {"graphs": graphs}
 
-# Сохраняем файл
 with open("src/main/resources/graph_input.json", "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 
-print("✅ Файл успешно создан: src/main/resources/graph_input.json")
+print("src/main/resources/graph_input.json")
 print(f"Всего графов: {len(graphs)}")
 for cat in ["small", "medium", "large", "extra"]:
     print(f"{cat}: {len([g for g in graphs if g['category']==cat])}")
