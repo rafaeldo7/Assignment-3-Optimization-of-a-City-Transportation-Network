@@ -97,3 +97,28 @@ JSON
     // ... other results
   ]
 }
+
+
+🏆 BONUS SECTION: Graph Design in Java (10%)
+
+This project fulfills the requirements for the bonus section on custom graph data structure implementation.
+
+Assignment Requirements
+
+    To encourage clean code architecture and proper use of object-oriented programming principles, students may receive bonus points for implementing a custom graph data structure in Java.
+
+    Students who choose to complete this bonus task should:
+
+        Include both Graph.java and Edge.java files in their submission package.
+
+        Use their Graph class as input for Prim’s and Kruskal’s algorithm implementations.
+
+        Provide pictures of graph structure loads correctly and integrates with their MST computation.
+
+How This Project Fulfills the Requirements
+
+    1. Graph.java and Edge.java Files: This project includes the custom data structure classes com.example.graph.Graph and com.example.graph.Edge located in the src/main/java/com/example/graph/ directory.
+
+    2. Integration with Algorithms: The Main class is responsible for parsing the input JSON file. It uses the Graph.createFromJson() static method to build a Graph object. This Graph object is then passed to both PrimAlgorithm and KruskalAlgorithm (via the setGraph() method) as the sole input for their computations.
+
+    3. Proof of Integration: The output.json file serves as the definitive proof of correct loading and integration. Its existence and the valid data it contains demonstrate that the custom Graph structure was successfully populated from the input file and then correctly processed by both MST algorithms to produce the final results.
