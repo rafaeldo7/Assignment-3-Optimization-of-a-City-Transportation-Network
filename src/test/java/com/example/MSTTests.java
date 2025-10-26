@@ -2,8 +2,8 @@ package com.example;
 
 import com.example.algorithms.KruskalAlgorithm;
 import com.example.algorithms.PrimAlgorithm;
-import com.example.graph.Edge;
 import com.example.graph.Graph;
+import com.example.graph.Result; 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,12 +26,15 @@ public class MSTTests {
         Graph graph = buildSampleGraph();
 
         KruskalAlgorithm kruskal = new KruskalAlgorithm();
-        KruskalAlgorithm.Result kr = kruskal.findMST(graph);
+        kruskal.setGraph(graph); // <-- ИСПРАВЛЕНО: Сначала устанавливаем граф
+        Result kr = kruskal.computeMST(); // <-- ИСПРАВЛЕНО: Вызываем computeMST()
 
         PrimAlgorithm prim = new PrimAlgorithm();
-        PrimAlgorithm.Result pr = prim.findMST(graph);
+        prim.setGraph(graph); // <-- ИСПРАВЛЕНО
+        Result pr = prim.computeMST(); // <-- ИСПРАВЛЕНО
 
-        Assertions.assertEquals(kr.totalCost, pr.totalCost,
+        // ИСПРАВЛЕНО: используем геттеры (getTotalCost)
+        Assertions.assertEquals(kr.getTotalCost(), pr.getTotalCost(),
                 "MST total cost should be the same for both algorithms");
     }
 
@@ -40,10 +43,14 @@ public class MSTTests {
         Graph graph = buildSampleGraph();
 
         KruskalAlgorithm kruskal = new KruskalAlgorithm();
-        KruskalAlgorithm.Result kr = kruskal.findMST(graph);
+        kruskal.setGraph(graph); // <-- ИСПРАВЛЕНО
+        Result kr = kruskal.computeMST(); // <-- ИСПРАВЛЕНО
 
-        int expectedEdges = graph.getVertexCount() - 1;
-        Assertions.assertEquals(expectedEdges, kr.mstEdges.size(),
+        // ИСПРАВЛЕНО: используем getVertices().size()
+        int expectedEdges = graph.getVertices().size() - 1; 
+        
+        // ИСПРАВЛЕНО: используем геттер getMstEdges()
+        Assertions.assertEquals(expectedEdges, kr.getMstEdges().size(),
                 "MST should have exactly V-1 edges");
     }
 
@@ -52,9 +59,11 @@ public class MSTTests {
         Graph graph = buildSampleGraph();
 
         KruskalAlgorithm kruskal = new KruskalAlgorithm();
-        KruskalAlgorithm.Result kr = kruskal.findMST(graph);
+        kruskal.setGraph(graph); // <-- ИСПРАВЛЕНО
+        Result kr = kruskal.computeMST(); // <-- ИСПРАВЛЕНО
 
-        Assertions.assertTrue(kr.executionTimeMs >= 0, "Execution time should be non-negative");
-        Assertions.assertTrue(kr.operationsCount >= 0, "Operation count should be non-negative");
+        // ИСПРАВЛЕНО: используем геттеры
+        Assertions.assertTrue(kr.getExecutionTimeMs() >= 0, "Execution time should be non-negative");
+        Assertions.assertTrue(kr.getOperationsCount() >= 0, "Operation count should be non-negative");
     }
 }
