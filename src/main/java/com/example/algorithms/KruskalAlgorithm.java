@@ -1,3 +1,4 @@
+
 package com.example.algorithms;
 
 import com.example.graph.Edge;
@@ -59,4 +60,5 @@ public class KruskalAlgorithm {
         return result;
     }
 }
+
 
