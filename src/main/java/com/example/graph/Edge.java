@@ -1,9 +1,9 @@
 package com.example.graph;
 
-public class Edge implements Comparable<Edge> {
-    private final String from;
-    private final String to;
-    private final int weight;
+public class Edge {
+    private String from;
+    private String to;
+    private int weight;
 
     public Edge(String from, String to, int weight) {
         this.from = from;
@@ -22,14 +22,5 @@ public class Edge implements Comparable<Edge> {
     public int getWeight() {
         return weight;
     }
-
-    @Override
-    public int compareTo(Edge other) {
-        return Integer.compare(this.weight, other.weight);
-    }
-
-    @Override
-    public String toString() {
-        return from + " - " + to + " (" + weight + ")";
-    }
 }
+

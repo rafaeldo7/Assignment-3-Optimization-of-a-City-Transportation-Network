@@ -1,0 +1,9 @@
+/home/rafael/MST_Assignment/src/main/java/com/example/GenerateGraphs.java
+/home/rafael/MST_Assignment/src/main/java/com/example/Main.java
+/home/rafael/MST_Assignment/src/main/java/com/example/algorithms/KruskalAlgorithm.java
+/home/rafael/MST_Assignment/src/main/java/com/example/algorithms/PrimAlgorithm.java
+/home/rafael/MST_Assignment/src/main/java/com/example/graph/Edge.java
+/home/rafael/MST_Assignment/src/main/java/com/example/graph/Graph.java
+/home/rafael/MST_Assignment/src/main/java/com/example/graph/Result.java
+/home/rafael/MST_Assignment/src/main/java/com/example/graph/UnionFind.java
+/home/rafael/MST_Assignment/src/main/java/com/example/utils/CSVExporter.java

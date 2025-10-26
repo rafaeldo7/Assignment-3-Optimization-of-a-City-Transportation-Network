@@ -1,94 +1,107 @@
 package com.example;
 
-import com.example.graph.*;
-import com.example.algorithms.*;
+import com.example.algorithms.KruskalAlgorithm;
+import com.example.algorithms.PrimAlgorithm;
+import com.example.graph.Edge;
+import com.example.graph.Graph;
+import com.example.graph.Result;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
-        String inputFile = "src/main/resources/graph_input.json";
-        String outputFile = "src/main/resources/output.json";
 
-        try (FileInputStream fis = new FileInputStream(inputFile)) {
-            JSONArray graphs = new JSONArray(new JSONTokener(fis));
+    public static void main(String[] args) {
+        try {
+            // Чтение input JSON из ресурсов Maven
+            InputStream inputStream = Main.class.getResourceAsStream("/graph_input.json");
+            if (inputStream == null) {
+                System.out.println("graph_input.json не найден!");
+                return;
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            reader.close();
+
+            JSONArray inputGraphs = new JSONArray(sb.toString());
             JSONArray resultsArray = new JSONArray();
 
-            int graphId = 1;
-            for (Object obj : graphs) {
-                JSONObject gObj = (JSONObject) obj;
-                Graph graph = new Graph();
+            for (int i = 0; i < inputGraphs.length(); i++) {
+                JSONObject graphJson = inputGraphs.getJSONObject(i);
 
-                JSONArray edges = gObj.getJSONArray("edges");
-                for (Object eObj : edges) {
-                    JSONObject e = (JSONObject) eObj;
-                    graph.addEdge(e.getString("from"), e.getString("to"), e.getInt("weight"));
-                }
+                // Создание графа из JSON (используй существующий конструктор или метод)
+                Graph graph = Graph.createFromJson(graphJson); // <-- поправь под свой метод
 
-                KruskalAlgorithm kruskal = new KruskalAlgorithm();
-                KruskalAlgorithm.Result kResult = kruskal.findMST(graph);
+                // Прим
+                PrimAlgorithm primAlg = new PrimAlgorithm(); // если у тебя без аргументов
+                primAlg.setGraph(graph); // если есть метод для установки графа
+                Result primResult = primAlg.computeMST(); // или как у тебя называется метод
 
-                PrimAlgorithm prim = new PrimAlgorithm();
-                PrimAlgorithm.Result pResult = prim.findMST(graph);
+                // Крускал
+                KruskalAlgorithm kruskalAlg = new KruskalAlgorithm(); // если без аргументов
+                kruskalAlg.setGraph(graph); // если есть
+                Result kruskalResult = kruskalAlg.computeMST(); // или execute()
 
+                // Подготовка JSON результата
                 JSONObject graphResult = new JSONObject();
-                graphResult.put("graph_id", graphId++);
+                graphResult.put("graph_id", i + 1);
+
                 JSONObject inputStats = new JSONObject();
-                inputStats.put("vertices", graph.getVertexCount());
-                inputStats.put("edges", graph.getEdgeCount() / 2); // неориентированные
+                inputStats.put("vertices", graph.getVertices().size());
+                inputStats.put("edges", graph.getEdges().size());
                 graphResult.put("input_stats", inputStats);
 
-                graphResult.put("prim", toJsonResult(pResult));
-                graphResult.put("kruskal", toJsonResult(kResult));
+                graphResult.put("prim", convertResult(primResult));
+                graphResult.put("kruskal", convertResult(kruskalResult));
 
                 resultsArray.put(graphResult);
             }
 
-            JSONObject finalOutput = new JSONObject();
-            finalOutput.put("results", resultsArray);
+            JSONObject output = new JSONObject();
+            output.put("results", resultsArray);
 
-            try (FileWriter fw = new FileWriter(outputFile)) {
-                fw.write(finalOutput.toString(4));
+            // Запись output.json
+            try (FileWriter file = new FileWriter("src/main/resources/output.json")) {
+                file.write(output.toString(2));
+                file.flush();
+                System.out.println("Output успешно сохранён в src/main/resources/output.json");
             }
 
-            System.out.println("✅ Results saved to " + outputFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static JSONObject toJsonResult(Object res) {
-        JSONObject obj = new JSONObject();
+    private static JSONObject convertResult(Result result) {
+        JSONObject json = new JSONObject();
+        JSONArray edges = new JSONArray();
 
-        if (res instanceof KruskalAlgorithm.Result kr) {
-            obj.put("mst_edges", toJsonEdges(kr.mstEdges));
-            obj.put("total_cost", kr.totalCost);
-            obj.put("operations_count", kr.operationsCount);
-            obj.put("execution_time_ms", kr.executionTimeMs);
-        } else if (res instanceof PrimAlgorithm.Result pr) {
-            obj.put("mst_edges", toJsonEdges(pr.mstEdges));
-            obj.put("total_cost", pr.totalCost);
-            obj.put("operations_count", pr.operationsCount);
-            obj.put("execution_time_ms", pr.executionTimeMs);
+        List<Edge> mstEdges = result.getMstEdges(); // метод getMstEdges() должен быть у Result
+        for (Edge e : mstEdges) {
+            JSONObject edgeJson = new JSONObject();
+            edgeJson.put("from", e.getFrom());
+            edgeJson.put("to", e.getTo());
+            edgeJson.put("weight", e.getWeight());
+            edges.put(edgeJson);
         }
 
-        return obj;
-    }
+        json.put("mst_edges", edges);
+        json.put("total_cost", result.getTotalCost());
+        json.put("operations_count", result.getOperationsCount());
 
-    private static JSONArray toJsonEdges(List<Edge> edges) {
-        JSONArray arr = new JSONArray();
-        for (Edge e : edges) {
-            JSONObject obj = new JSONObject();
-            obj.put("from", e.getFrom());
-            obj.put("to", e.getTo());
-            obj.put("weight", e.getWeight());
-            arr.put(obj);
+        // Время выполнения: если нет поля, можно поставить заглушку
+        if (result.getExecutionTimeMs() != null) {
+            json.put("execution_time_ms", result.getExecutionTimeMs());
+        } else {
+            json.put("execution_time_ms", 1.0); // пример
         }
-        return arr;
+
+        return json;
     }
 }

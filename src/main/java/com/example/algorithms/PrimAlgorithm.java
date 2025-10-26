@@ -2,59 +2,81 @@ package com.example.algorithms;
 
 import com.example.graph.Edge;
 import com.example.graph.Graph;
+import com.example.graph.Result;
 
 import java.util.*;
 
 public class PrimAlgorithm {
+    private Graph graph;
 
-    public static class Result {
-        public List<Edge> mstEdges;
-        public int totalCost;
-        public int operationsCount;
-        public double executionTimeMs;
-
-        public Result(List<Edge> mstEdges, int totalCost, int operationsCount, double executionTimeMs) {
-            this.mstEdges = mstEdges;
-            this.totalCost = totalCost;
-            this.operationsCount = operationsCount;
-            this.executionTimeMs = executionTimeMs;
-        }
+    public PrimAlgorithm() {
+        // Пустой конструктор
     }
 
-    public Result findMST(Graph graph) {
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+    }
+
+    public Result computeMST() {
+        Result result = new Result();
+
         long startTime = System.nanoTime();
 
-        Set<String> visited = new HashSet<>();
         List<Edge> mstEdges = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
         PriorityQueue<Edge> pq = new PriorityQueue<>(Comparator.comparingInt(Edge::getWeight));
-
-        String start = graph.getVertices().iterator().next();
-        visited.add(start);
-        pq.addAll(graph.getAdjacencyList().get(start));
-
-        int totalCost = 0;
         int operations = 0;
 
+        if (graph.getVertices().isEmpty()) return result;
+
+        String start = graph.getVertices().get(0);
+        visited.add(start);
+
+        // добавляем все рёбра, исходящие из стартовой вершины
+        for (Edge e : graph.getEdges()) {
+            if (e.getFrom().equals(start) || e.getTo().equals(start)) {
+                pq.offer(e);
+                operations++;
+            }
+        }
+
         while (!pq.isEmpty() && visited.size() < graph.getVertices().size()) {
-            Edge edge = pq.poll();
+            Edge e = pq.poll();
             operations++;
 
-            if (visited.contains(edge.getTo())) continue;
+            String next = null;
+            if (visited.contains(e.getFrom()) && !visited.contains(e.getTo())) {
+                next = e.getTo();
+            } else if (visited.contains(e.getTo()) && !visited.contains(e.getFrom())) {
+                next = e.getFrom();
+            } else {
+                continue;
+            }
 
-            visited.add(edge.getTo());
-            mstEdges.add(edge);
-            totalCost += edge.getWeight();
+            mstEdges.add(e);
+            visited.add(next);
 
-            for (Edge next : graph.getAdjacencyList().get(edge.getTo())) {
-                if (!visited.contains(next.getTo())) {
-                    pq.add(next);
+            // добавляем новые рёбра
+            for (Edge edge : graph.getEdges()) {
+                if ((edge.getFrom().equals(next) && !visited.contains(edge.getTo())) ||
+                    (edge.getTo().equals(next) && !visited.contains(edge.getFrom()))) {
+                    pq.offer(edge);
+                    operations++;
                 }
             }
         }
 
         long endTime = System.nanoTime();
-        double execTimeMs = (endTime - startTime) / 1_000_000.0;
+        double elapsedMs = (endTime - startTime) / 1_000_000.0;
 
-        return new Result(mstEdges, totalCost, operations, execTimeMs);
+        int totalCost = mstEdges.stream().mapToInt(Edge::getWeight).sum();
+
+        result.setMstEdges(mstEdges);
+        result.setTotalCost(totalCost);
+        result.setOperationsCount(operations);
+        result.setExecutionTimeMs(elapsedMs);
+
+        return result;
     }
 }
+

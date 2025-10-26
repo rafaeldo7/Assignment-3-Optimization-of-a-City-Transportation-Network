@@ -1,50 +1,32 @@
 package com.example.graph;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UnionFind {
-    private final Map<String, String> parent = new HashMap<>();
-    private final Map<String, Integer> rank = new HashMap<>();
-    private int operationsCount = 0;
+    private Map<String, String> parent;
 
-    public void makeSet(String vertex) {
-        parent.put(vertex, vertex);
-        rank.put(vertex, 0);
-        operationsCount++;
+    public UnionFind(List<String> vertices) {
+        parent = new HashMap<>();
+        for (String v : vertices) {
+            parent.put(v, v);
+        }
     }
 
-    public String find(String vertex) {
-        operationsCount++;
-        if (!parent.get(vertex).equals(vertex)) {
-            parent.put(vertex, find(parent.get(vertex))); // path compression
+    public String find(String v) {
+        if (!parent.get(v).equals(v)) {
+            parent.put(v, find(parent.get(v))); // path compression
         }
-        return parent.get(vertex);
+        return parent.get(v);
     }
 
-    public boolean union(String root1, String root2) {
-        String parent1 = find(root1);
-        String parent2 = find(root2);
-
-        if (parent1.equals(parent2)) {
-            return false;
+    public void union(String a, String b) {
+        String rootA = find(a);
+        String rootB = find(b);
+        if (!rootA.equals(rootB)) {
+            parent.put(rootA, rootB);
         }
-
-        // Union by rank
-        if (rank.get(parent1) < rank.get(parent2)) {
-            parent.put(parent1, parent2);
-        } else if (rank.get(parent1) > rank.get(parent2)) {
-            parent.put(parent2, parent1);
-        } else {
-            parent.put(parent2, parent1);
-            rank.put(parent1, rank.get(parent1) + 1);
-        }
-
-        operationsCount++;
-        return true;
-    }
-
-    public int getOperationsCount() {
-        return operationsCount;
     }
 }
+

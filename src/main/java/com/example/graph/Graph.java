@@ -1,33 +1,21 @@
 package com.example.graph;
 
-import java.util.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Graph {
-    private final Set<String> vertices;
-    private final List<Edge> edges;
-    private final Map<String, List<Edge>> adjacencyList;
+    private List<String> vertices;
+    private List<Edge> edges;
 
     public Graph() {
-        vertices = new HashSet<>();
-        edges = new ArrayList<>();
-        adjacencyList = new HashMap<>();
+        this.vertices = new ArrayList<>();
+        this.edges = new ArrayList<>();
     }
 
-    public void addVertex(String vertex) {
-        vertices.add(vertex);
-        adjacencyList.putIfAbsent(vertex, new ArrayList<>());
-    }
-
-    public void addEdge(String from, String to, int weight) {
-        addVertex(from);
-        addVertex(to);
-        Edge edge = new Edge(from, to, weight);
-        edges.add(edge);
-        adjacencyList.get(from).add(edge);
-        adjacencyList.get(to).add(new Edge(to, from, weight)); // для неориентированного графа
-    }
-
-    public Set<String> getVertices() {
+    public List<String> getVertices() {
         return vertices;
     }
 
@@ -35,15 +23,42 @@ public class Graph {
         return edges;
     }
 
-    public Map<String, List<Edge>> getAdjacencyList() {
-        return adjacencyList;
+    public void addVertex(String v) {
+        if (!vertices.contains(v)) vertices.add(v);
     }
 
-    public int getVertexCount() {
-        return vertices.size();
+    public void addEdge(String from, String to, int weight) {
+        Edge e = new Edge(from, to, weight);
+        edges.add(e);
+        addVertex(from);
+        addVertex(to);
     }
 
-    public int getEdgeCount() {
-        return edges.size();
+    // Создание графа из JSON с ключом "nodes"
+    public static Graph createFromJson(JSONObject json) {
+        Graph g = new Graph();
+
+        // читаем вершины
+        if (json.has("nodes")) {
+            JSONArray verts = json.getJSONArray("nodes");
+            for (int i = 0; i < verts.length(); i++) {
+                g.addVertex(verts.getString(i));
+            }
+        }
+
+        // читаем рёбра
+        if (json.has("edges")) {
+            JSONArray eds = json.getJSONArray("edges");
+            for (int i = 0; i < eds.length(); i++) {
+                JSONObject e = eds.getJSONObject(i);
+                String from = e.getString("from");
+                String to = e.getString("to");
+                int weight = e.getInt("weight");
+                g.addEdge(from, to, weight);
+            }
+        }
+
+        return g;
     }
 }
+
